@@ -15,8 +15,8 @@ public interface ProductService{
 	// 3. Get all products
 	List<Product> getAllProducts();
 	
-	// 4. Update product by id
-	Optional<Product> updateProduct(Long id, Product product);
+	// 4. Update product
+	void updateProduct(Long id ,Product product);
 	
 	// 5. Delete product by id
 	void deleteProduct(Long id);
