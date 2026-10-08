@@ -32,7 +32,7 @@ public class ProductController {
 		return productService.getAllProducts();
 	}
 	
-	@PostMapping("/create/product")
+	@PostMapping("/add/product")
 	public void postProduct(Product product) {
 		productService.createProduct(product);
 	}
