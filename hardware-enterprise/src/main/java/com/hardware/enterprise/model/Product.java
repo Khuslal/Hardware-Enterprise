@@ -13,6 +13,6 @@ public class Product {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	private String name;
-	private String price;
-	private String stock;
+	private int price;
+	private int stock;
 }
