@@ -2,6 +2,7 @@ package com.hardware.enterprise.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -16,12 +17,27 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
 	@Bean
-	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
+	public SecurityFilterChain securityFilterChain(HttpSecurity http) {
+		
 		return http
-			.csrf(csrf -> csrf.disable()) // Disable CSRF for localhost Rest APIs
-			.authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
-			.httpBasic(Customizer.withDefaults()) // Enables Basic Auth
-			.build();
+		.csrf(csrf -> csrf.disable())
+		.authorizeHttpRequests(auth -> auth
+				.requestMatchers(HttpMethod.POST, "/api/**")
+				.hasRole("ADMIN") // only admin can access post request
+				.requestMatchers(HttpMethod.GET, "/api/**")
+				.permitAll() // anyone can access get request
+				
+				// .anyReq().auth() ensures that any other url request except
+				// the above rules requires authentication (e.g /products, /home)
+				.anyRequest()
+				.authenticated() 
+		 )
+		// for web application
+		.formLogin(Customizer.withDefaults())
+		
+		// for mobile app, postman
+		.httpBasic(Customizer.withDefaults())
+		.build();
 	}
 	
 	
@@ -30,24 +46,26 @@ public class SecurityConfig {
 	@Bean
 	public UserDetailsService userDetailsService() {
 		
-		UserDetails user1 = User.withDefaultPasswordEncoder()
+		UserDetails customer = User.withDefaultPasswordEncoder()
 							.username("Khush")
 							.password("Khush")
 							.roles("CUSTOMER")
 							.build();
 		
-		UserDetails user2 = User.withDefaultPasswordEncoder()
+		UserDetails merchant = User.withDefaultPasswordEncoder()
 				.username("Diwash")
 				.password("diwash")
 				.roles("MERCHANT")
 				.build();
 		
-		UserDetails user3 = User.withDefaultPasswordEncoder()
+		UserDetails admin = User.withDefaultPasswordEncoder()
 				.username("Sailesh")
 				.password("sailesh")
 				.roles("ADMIN")
 				.build();
 		
-		return new InMemoryUserDetailsManager(user1, user2, user3);
+		return new InMemoryUserDetailsManager(admin, customer, merchant);
+	
 	}
+
 }
