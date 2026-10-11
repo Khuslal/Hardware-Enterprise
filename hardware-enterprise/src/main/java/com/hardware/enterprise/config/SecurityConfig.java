@@ -44,7 +44,7 @@ public class SecurityConfig {
 	// Defining user details for login security validation
 	// We don't required hard coded value but for basic understanding we implemented this.
 	@Bean
-	public UserDetailsService userDetailsService() {
+	public UserDetailsService userDetailsService()throws Exception {
 		
 		UserDetails customer = User.withDefaultPasswordEncoder()
 							.username("Khush")
