@@ -1,9 +1,11 @@
 package com.hardware.enterprise.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -17,6 +19,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -26,14 +31,14 @@ public class SecurityConfig {
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
-	
-	// 
 
 	// 2. Authentication
+	
+	private final UserDetailsService userDetailsService;
 	@Bean
-	public DaoAuthenticationProvider daoAuthenticationProvider(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
+	public AuthenticationProvider authenticationProvider() {
 		DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
-		provider.setPasswordEncoder(passwordEncoder);
+		provider.setPasswordEncoder(passwordEncoder());
 		return provider;
 	}
 	
@@ -42,6 +47,7 @@ public class SecurityConfig {
 	public AuthenticationManager authManager(AuthenticationConfiguration authConfig) throws Exception{
 		return authConfig.getAuthenticationManager();
 	}
+	
 	
 	// 3. Authorization
 	@Bean
@@ -60,38 +66,5 @@ public class SecurityConfig {
 				// for mobile app, postman
 				.httpBasic(Customizer.withDefaults()).build();
 	}
-
-	/* 	
-	 * Defining user details for login security validation
-	 *	We don't required hard coded value but for basic understanding we implemented
-	 *	this.
-	 **/
-	
-	/*
-	  @Bean
-	public UserDetailsService userDetailsService() {
-		
-		UserDetails customer = User.withDefaultPasswordEncoder()
-							.username("Khush")
-							.password("Khush")
-							.roles("CUSTOMER")
-							.build();
-		
-		UserDetails merchant = User.withDefaultPasswordEncoder()
-				.username("Diwash")
-				.password("diwash")
-				.roles("MERCHANT")
-				.build();
-		
-		UserDetails admin = User.withDefaultPasswordEncoder()
-				.username("Sailesh")
-				.password("sailesh")
-				.roles("ADMIN")
-				.build();
-		
-		return new InMemoryUserDetailsManager(admin, customer, merchant);
-	
-	}
-	 */
 
 }
