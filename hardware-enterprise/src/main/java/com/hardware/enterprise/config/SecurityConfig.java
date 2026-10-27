@@ -1,6 +1,5 @@
 package com.hardware.enterprise.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -11,12 +10,9 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 import lombok.RequiredArgsConstructor;
@@ -53,18 +49,33 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-		return http.csrf(csrf -> csrf.disable()).authorizeHttpRequests(auth -> auth
-				.requestMatchers(HttpMethod.POST, "/api/**").hasRole("ADMIN") /* only admin can access post request */
-				.requestMatchers(HttpMethod.GET, "/api/**").permitAll() // anyone can access get request
-
-				// .anyReq().auth() ensures that any other url request except
-				// the above rules requires authentication (e.g /products, /home)
-				.anyRequest().authenticated())
+		return http.csrf(csrf -> csrf.disable())
+				.authorizeHttpRequests(auth -> auth
+						.requestMatchers("/api/auth/register", "/error").permitAll()
+						.requestMatchers(HttpMethod.POST, "/api/**").hasRole("ADMIN") /* only admin can access post request */
+						.requestMatchers(HttpMethod.GET, "/api/**").permitAll() // anyone can access get request
+						.anyRequest().authenticated()
+						)
+/* .anyReq().authenticated() ensures that any other url request except the above
+ rules requires authentication (e.g /products, /home) */
 				// for web application
-				.formLogin(Customizer.withDefaults())
+						.formLogin(form -> form
+								.loginPage("/login")
+								.loginProcessingUrl("/login")
+								.usernameParameter("email")
+								.passwordParameter("password")
+								.defaultSuccessUrl("/dashboard", true)
+								.permitAll()
+						)
+						.logout(logout -> logout
+				                .logoutUrl("/logout")
+				                .logoutSuccessUrl("/?logout=true")
+				                .permitAll()
+				        )
 
 				// for mobile app, postman
-				.httpBasic(Customizer.withDefaults()).build();
+						.httpBasic(Customizer.withDefaults())
+						.build();
 	}
 
 }
