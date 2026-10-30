@@ -33,13 +33,14 @@ public class ProductServiceImpl implements ProductService{
 	}
 
 	@Override
-	public void updateProduct(Long id, Product product) {
-		productRepo.save(product);
-	}
-
-	@Override
 	public void deleteProduct(Long id) {
 		productRepo.deleteById(id);
+	}
+
+	// Update/Save product
+	@Override
+	public void save(Product product) {
+		productRepo.save(product);
 	}
 
 }
