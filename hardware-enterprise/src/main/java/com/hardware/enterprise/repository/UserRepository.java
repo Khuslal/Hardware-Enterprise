@@ -5,5 +5,5 @@ import com.hardware.enterprise.model.User;
 
 public interface UserRepository extends JpaRepository<User, Long>{
 
-	User findByUsername();
+	User findByUsername(String username);
 }
