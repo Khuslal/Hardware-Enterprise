@@ -1,7 +1,6 @@
 package com.hardware.enterprise.controller;
 
 import com.hardware.enterprise.model.User;
-import com.hardware.enterprise.repository.UserRepository;
 import com.hardware.enterprise.service.UserService;
 
 import lombok.RequiredArgsConstructor;
@@ -20,21 +19,20 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api")
 public class UserController {
 
-	private final UserRepository userRepository;
 	private final UserService userService;
 
 	@GetMapping("/users/{username}")
 	public User getUserByUsername(@PathVariable String username) {
-		return userService.findUserByUsername(username);
+		return userService.findByUsername(username);
 	}
 	
 	@GetMapping("/users")
-	public List<User> getUsers(@PathVariable String username) {
-		return userService.findByUsername(username);
+	public List<User> getUsers() {
+		return userService.findAll();
 	}
 	
 	@PostMapping("/auth/register")
 	public void postUser(@RequestBody User user) {
-		userRepository.save(user);
+		userService.save(user);
 	}
 }
